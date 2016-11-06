@@ -22,6 +22,10 @@
  * omitting any typical JavaScript idioms & paradigms. For usage examples see
  * the Test() function at the bottom.
  */
+
+
+
+
 /// Create a new array and prefill
 /// with an initial value.
 /// @param array The desired array length.
