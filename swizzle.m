@@ -65,9 +65,10 @@
 
 int main(int argc, const char * argv[]) {
     
-    SuperFoo* foo = [SuperFoo new];
+    SuperFoo* foo = [[SuperFoo new] autorelease];
     
     [foo Foo];
+
     
     return 0;
 }
