@@ -31,7 +31,6 @@ int main() {
 
     } while(true);
 
-    return EXIT_SUCCESS;
 }
 
 
