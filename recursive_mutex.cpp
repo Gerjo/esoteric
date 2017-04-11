@@ -15,7 +15,7 @@ void recurse(const std::string& ident, int depth) {
 		std::this_thread::yield();
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	
-		std::cout << "at dept " << depth << " for ident " << ident << std::endl;
+		std::cout << "at depth " << depth << " for ident " << ident << std::endl;
 	
 		recurse(ident, depth - 1);	
 	
