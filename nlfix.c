@@ -21,8 +21,6 @@ void print_stats(Stats* stats);
 
 int main(int argc, char** argv) {
 
-	char buffer[128];
-
 	int doStats = 0;
 	
 	for(int i = 1; i < argc; ++i) {
@@ -64,8 +62,7 @@ int main(int argc, char** argv) {
 
 void analyse(FILE* file, int doOut, Stats* stats) {
 	char buffer[128];
-	
-	int retrieved = 0;
+
 	char last = 0;
 	do {
 		int retrieved = fread(buffer, 1, sizeof buffer, file);
