@@ -1,11 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import sys, os, subprocess
 import os.path
 
 def run_cs(filename):
-    compilers = ["/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs"]
-    runtimes = ["/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mono"]
+    compilers = [
+        "/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
+        "/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
+    ]
+
+    runtimes = [
+        "/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mono",
+        "/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mono",
+    ]
     
     compiler = runtime = None
     
