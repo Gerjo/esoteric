@@ -45,6 +45,7 @@ recipes[".py"]  = "python {}"
 recipes[".php"] = "php {}"
 recipes[".cs"]  = run_cs
 recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && ./out && rm ./out"
+recipes[".r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {}" 
 
 #recipes[".m"]   = 
 
