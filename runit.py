@@ -42,7 +42,7 @@ recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out &&
 #recipes[".m"]   = 
 
 recipes[".m"] = {
-    "matlab": "matlab -nodisplay -nosplash -nodesktop -r \"try, run('{}'), catch e, fprintf('%s\\n', e.message), end; quit;\"",
+    "matlab": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
     "objc":   "clang -framework Foundation {} -o out && ./out && rm ./out"
 }
 
