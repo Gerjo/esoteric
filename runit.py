@@ -54,8 +54,6 @@ recipes[".m"] = {
     "objc":   "clang -framework Foundation {} -o out && ./out && rm ./out"
 }
 
-#C:\<a long path here>\matlab.exe" -nodisplay -nosplash -nodesktop -r "try, run('C:\<a long path here>\mfile.m'), catch me, fprintf('%s / %s\n',me.identifier,me.message), end, exit"
-
 def error(code, str):
     sys.stderr.write(str + "\n")
     sys.exit(code) 
