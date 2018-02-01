@@ -26,7 +26,6 @@ def run_cs(filename):
     
     if compiler == None or runtime == None:
         print("Cannot run .cs files. Either runtime or compiler isn't found.")
-        return
     
     tmp = "out.exe";
     
@@ -45,8 +44,15 @@ recipes[".js"]  = "node {}"
 recipes[".py"]  = "python {}"
 recipes[".php"] = "php {}"
 recipes[".cs"]  = run_cs
-recipes[".m"]   = "clang -framework Foundation {} -o out && ./out; rm ./out"
 recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && ./out; rm ./out"
+recipes[".r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {}" 
+
+#recipes[".m"]   = 
+
+recipes[".m"] = {
+    "matlab": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
+    "objc":   "clang -framework Foundation {} -o out && ./out; rm ./out"
+}
 
 def error(code, str):
     sys.stderr.write(str + "\n")
@@ -55,11 +61,10 @@ def error(code, str):
 def run(cmd):
     return os.system(cmd)
 
-if len(sys.argv) == 2:
+if len(sys.argv) >= 2:
     filename = sys.argv[-1]
     pwd = os.getcwd()
     
-    # Execute as-is (disabled - seems confusing)
     #if os.access(filename, os.X_OK):
     #    run("./" + filename)
     #else:
@@ -68,6 +73,20 @@ if len(sys.argv) == 2:
 
     if extension in recipes:
         recipe = recipes[extension]
+        
+        if type(recipe) == dict:
+            
+            if len(sys.argv) <= 2 or sys.argv[1] not in recipe:
+                errormessage = "Multiple recipes known for file extension '{}'. Try one of these:\n".format(extension)
+                
+                for key in recipe:
+                    errormessage += "  {} {} {}\n".format(sys.argv[0], key, filename)
+                    
+                error(3, errormessage)
+                
+            else:
+                subrecipe = sys.argv[1]
+                recipe = recipe[subrecipe]
         
         if callable(recipes[extension]):
             recipes[extension](filename)
