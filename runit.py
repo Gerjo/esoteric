@@ -26,6 +26,7 @@ def run_cs(filename):
     
     if compiler == None or runtime == None:
         print("Cannot run .cs files. Either runtime or compiler isn't found.")
+        return
     
     tmp = "out.exe";
     
