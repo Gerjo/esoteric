@@ -19,7 +19,7 @@ private:
 };
 
 
-int main(int argc, char** argv) {
+int main() {
     
     // Pointer to method:
     void (Bar::* method) (void) = &Bar::foo;
