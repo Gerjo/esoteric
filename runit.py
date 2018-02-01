@@ -59,20 +59,22 @@ if len(sys.argv) == 2:
     filename = sys.argv[-1]
     pwd = os.getcwd()
     
-    if os.access(filename, os.X_OK):
-        run("./" + filename)
-    else:
-        extension = os.path.splitext(filename)[1].lower();
+    # Execute as-is (disabled - seems confusing)
+    #if os.access(filename, os.X_OK):
+    #    run("./" + filename)
+    #else:
     
-        if extension in recipes:
-            recipe = recipes[extension]
-            
-            if callable(recipes[extension]):
-                recipes[extension](filename)
-            else:
-                run(recipe.format(filename))
+    extension = os.path.splitext(filename)[1].lower();
+
+    if extension in recipes:
+        recipe = recipes[extension]
+        
+        if callable(recipes[extension]):
+            recipes[extension](filename)
         else:
-            error(2, "Cannot execute '{}' files. No known recipe.".format(extension))
+            run(recipe.format(filename))
+    else:
+        error(2, "Cannot execute '{}' files. No known recipe.".format(extension))
     
 else:
     error(1, "Unknown number of arguments specified: {}".format(len(sys.argv)))
