@@ -39,14 +39,14 @@ def run_cs(filename):
 
 recipes = {}
 
-recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && ./out && rm ./out"
-recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && ./out && rm ./out"
+recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && ./out; rm ./out"
+recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && ./out; rm ./out"
 recipes[".js"]  = "node {}"
 recipes[".py"]  = "python {}"
 recipes[".php"] = "php {}"
 recipes[".cs"]  = run_cs
-recipes[".m"]   = "clang -framework Foundation {} -o out && ./out && rm ./out"
-recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && ./out && rm ./out"
+recipes[".m"]   = "clang -framework Foundation {} -o out && ./out; rm ./out"
+recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && ./out; rm ./out"
 
 def error(code, str):
     sys.stderr.write(str + "\n")
