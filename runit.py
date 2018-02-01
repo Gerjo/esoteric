@@ -33,8 +33,7 @@ def run_cs(filename):
         
     # Test for success exit code
     if didCompile == 0:
-        run("{} {}".format(runtime, tmp))
-        run("rm -f {}".format(tmp))
+        run("{} {}; rm -f {}".format(runtime, tmp, tmp))
 
 recipes = {}
 
