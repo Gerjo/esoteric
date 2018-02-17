@@ -47,12 +47,12 @@ recipes = {}
 recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && (./out; rm ./out)"
 recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && (./out; rm ./out)"
 recipes[".js"]  = "node {}"
-recipes[".py"]  = "python {}"
 recipes[".php"] = "php {}"
 recipes[".cs"]  = run_cs
 recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && (./out; rm ./out)"
 recipes[".r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {}" 
 
+recipes[".py"]  = "python3 {}"
 
 recipes[".m"] = {
     "matlab": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
