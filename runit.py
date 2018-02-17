@@ -2,8 +2,9 @@
 
 import sys, os, subprocess
 import os.path
+import argparse
 
-def run_cs(filename):
+def run_cs(filename, extension, args):
     compilers = [
         "/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
         "/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
@@ -25,48 +26,58 @@ def run_cs(filename):
             runtime = bin
     
     if compiler == None or runtime == None:
-        print("Cannot run .cs files. Either runtime or compiler isn't found.")
+        error(4, "Cannot run {} files. Either runtime or compiler isn't found.".format(extension))
     
     tmp = "out.exe";
     
-    didCompile = run("{} -out:{} {}".format(compiler, tmp, filename))
-        
-    # Test for success exit code
-    if didCompile == 0:
-        run("{} {}; rm -f {}".format(runtime, tmp, tmp))
+    # Compile ...
+    cmd = "{} -out:'{}' '{}'".format(compiler, tmp, filename)
+    
+    # ...and on success...
+    cmd += " && "
+    
+    # ... execute and delete
+    cmd += "({} '{}'; rm -f '{}')".format(runtime, tmp, tmp)
+    
+    run(cmd, extension, args)
+    
 
 recipes = {}
 
-recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && ./out; rm ./out"
-recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && ./out; rm ./out"
+recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && (./out; rm ./out)"
+recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && (./out; rm ./out)"
 recipes[".js"]  = "node {}"
 recipes[".py"]  = "python {}"
 recipes[".php"] = "php {}"
 recipes[".cs"]  = run_cs
-recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && ./out; rm ./out"
+recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && (./out; rm ./out)"
 recipes[".r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {}" 
 
-#recipes[".m"]   = 
 
 recipes[".m"] = {
     "matlab": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
-    "objc":   "clang -framework Foundation {} -o out && ./out; rm ./out"
+    "objc":   "clang -framework Foundation {} -o out && (./out; rm ./out)"
 }
 
 def error(code, str):
     sys.stderr.write(str + "\n")
     sys.exit(code) 
-
-def run(cmd):
-    return os.system(cmd)
-
-if len(sys.argv) >= 2:
-    filename = sys.argv[-1]
-    pwd = os.getcwd()
     
-    #if os.access(filename, os.X_OK):
-    #    run("./" + filename)
-    #else:
+def run(cmd, extension, args):
+    
+    if args.entr:
+        entr_cmd = "find .  -type f -name '*{}' -maxdepth {} | entr -c -r sh -c '{}'"
+        
+        escaped_cmd = cmd.replace("'", "'\\''")
+                
+        return os.system(entr_cmd.format(extension, args.maxdepth, escaped_cmd))
+    else:
+        return os.system(cmd)
+
+def main(args):
+
+    filename = args.filename
+    pwd = os.getcwd()
     
     extension = os.path.splitext(filename)[1].lower();
 
@@ -75,26 +86,32 @@ if len(sys.argv) >= 2:
         
         if type(recipe) == dict:
             
-            if len(sys.argv) <= 2 or sys.argv[1] not in recipe:
+            if not args.recipe or args.recipe not in recipe:
                 errormessage = "Multiple recipes known for file extension '{}'. Try one of these:\n".format(extension)
                 
                 for key in recipe:
-                    errormessage += "  {} {} {}\n".format(sys.argv[0], key, filename)
+                    errormessage += "  {} {} {}\n".format(os.path.basename(sys.argv[0]), key, filename)
                     
                 error(3, errormessage)
                 
             else:
-                subrecipe = sys.argv[1]
-                recipe = recipe[subrecipe]
-        
+                recipe = recipe[args.recipe]
+            
         if callable(recipes[extension]):
-            recipes[extension](filename)
+            recipes[extension](filename, extension, args)
         else:
-            run(recipe.format(filename))
+            run(recipe.format(filename), extension, args)
     else:
         error(2, "Cannot execute '{}' files. No known recipe.".format(extension))
-    
-else:
-    error(1, "Unknown number of arguments specified: {}".format(len(sys.argv)))
+
+parser = argparse.ArgumentParser(description="Execute any sort of file.", epilog="This ought to make it easier to quickly test something, right?")
+parser.add_argument("recipe", help="The recipe to use in case file extension is ambiguous", nargs="?", default=None)
+parser.add_argument("filename", help="The to be executed file")
+parser.add_argument("--entr", help="Monitor for file changes", dest="entr", action="store_const", default=False, const=True)
+parser.add_argument("--maxdepth", help="Recursion depth of find, in case entr is used", dest="maxdepth", action="store", default=2)
+
+args = parser.parse_args()
+
+main(args)
 
 sys.exit(0)
