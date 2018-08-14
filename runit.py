@@ -4,6 +4,14 @@ import sys, os, subprocess
 import os.path
 import argparse
 
+def run_java(filename, extension, args):
+
+    executable = filename[0:-len(extension)]
+    
+    cmd = "javac {} && java {} && rm {}.class".format(filename, executable, executable)
+    
+    run(cmd, extension, args)
+    
 def run_cs(filename, extension, args):
     compilers = [
         "/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
@@ -58,6 +66,9 @@ recipes[".m"] = {
     "matlab": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
     "objc":   "clang -framework Foundation {} -o out && (./out; rm ./out)"
 }
+
+recipes[".java"] = run_java
+
 
 def error(code, str):
     sys.stderr.write(str + "\n")
