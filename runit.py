@@ -3,6 +3,7 @@
 import sys, os, subprocess
 import os.path
 import argparse
+import time
 
 def run_java(filename, extension, args):
 
@@ -76,15 +77,23 @@ def error(code, str):
     
 def run(cmd, extension, args):
     
+    if args.bench:
+        ruler = "----------------------"
+        
+        # Wrap in time, and use a custom format specifier to 
+        # return the real time.
+        cmd = "TIMEFORMAT='\n{0}\ntook %R seconds'; echo '{0}'; time {1}; unset TIMEFORMAT;".format(ruler, cmd)
+    
     if args.entr:
-        entr_cmd = "find .  -type f -name '*{}' -maxdepth {} | entr -c -r sh -c '{}'"
+        entr_cmd = "find .  -type f -name '*{}' -maxdepth {} |  entr -c -r sh -c '{}';"
         
         escaped_cmd = cmd.replace("'", "'\\''")
                 
-        return os.system(entr_cmd.format(extension, args.maxdepth, escaped_cmd))
+        os.system(entr_cmd.format(extension, args.maxdepth, escaped_cmd))
+    
     else:
-        return os.system(cmd)
-
+        os.system(cmd)
+    
 def main(args):
 
     filename = args.filename
@@ -120,6 +129,7 @@ parser.add_argument("recipe", help="The recipe to use in case file extension is 
 parser.add_argument("filename", help="The to be executed file")
 parser.add_argument("--entr", help="Monitor for file changes", dest="entr", action="store_const", default=False, const=True)
 parser.add_argument("--maxdepth", help="Recursion depth of find, in case entr is used", dest="maxdepth", action="store", default=2)
+parser.add_argument("--bench", help="Delimit execution output with a benchmark and ruler", dest="bench", action="store_const", default=False, const=True)
 
 args = parser.parse_args()
 
