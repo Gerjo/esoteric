@@ -14,14 +14,20 @@ def run_java(filename, extension, args):
     run(cmd, extension, args)
     
 def run_cs(filename, extension, args):
+    
+    # gerjo: search the unity hub path for the latest installation, instead of 
+    # hardcoding paths here.
+    
     compilers = [
         "/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
         "/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
+        "/Applications/Unity/Hub/Editor/2018.3.11f1/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
     ]
 
     runtimes = [
         "/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mono",
         "/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mono",
+        "/Applications/Unity/Hub/Editor/2018.3.11f1/Unity.app/Contents/MonoBleedingEdge/bin/mono",
     ]
     
     compiler = runtime = None
