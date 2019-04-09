@@ -40,6 +40,17 @@ alias ll='ls -lG'
 alias la='ls -lGa'
 
 ### 
+# Open the given, or current, directory in gitx.
+###
+gitx() {
+	if [ "$#" -lt 1 ]; then
+		$(/Users/gerjo/Applications/GitX.app/Contents/Resources/gitx)
+	else
+		$(/Users/gerjo/Applications/GitX.app/Contents/Resources/gitx --git-dir=$1)
+	fi
+}
+
+### 
 # Search for a file, and blame it. Anything specified after the first argument 
 # is directly passed onto the git blame command.
 ###
