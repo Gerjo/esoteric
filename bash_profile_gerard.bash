@@ -24,6 +24,9 @@ done
 source ~/esoteric/git-prompt.sh
 source ~/esoteric/git-completion.bash
 
+export EDITOR=nano
+export VISUAL=nano
+
 # Shorthand for finding a file.
 alias qfind="find . -iname "
 
