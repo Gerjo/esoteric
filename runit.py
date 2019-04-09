@@ -135,7 +135,7 @@ parser.add_argument("recipe", help="The recipe to use in case file extension is 
 parser.add_argument("filename", help="The to be executed file")
 parser.add_argument("--entr", help="Monitor for file changes", dest="entr", action="store_const", default=False, const=True)
 parser.add_argument("--maxdepth", help="Recursion depth of find, in case entr is used", dest="maxdepth", action="store", default=2)
-parser.add_argument("--bench", help="Delimit execution output with a benchmark and ruler", dest="bench", action="store_const", default=False, const=True)
+parser.add_argument("--nobench", help="Remote benchmark and ruler", dest="bench", action="store_const", default=True, const=True)
 
 args = parser.parse_args()
 
