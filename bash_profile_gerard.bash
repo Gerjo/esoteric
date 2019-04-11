@@ -57,7 +57,7 @@ gitx() {
 blame() {
 	if [ "$#" -lt 1 ]; then
 	    echo "fatal: did not specify a file name or pattern"
-		return 0
+		return 1
 	fi
 	
 	# First argument represents the file or pattern searched for
