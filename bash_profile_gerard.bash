@@ -39,14 +39,17 @@ alias ll='ls -lG'
 # Show as list layout, with colors, and hidden files.
 alias la='ls -lGa'
 
+# Find out where gitx is installed on my system.
+gitx_path=$(find ~/Applications /Applications -iname "gitx.app" -type d -maxdepth 1 2>/dev/null)
+
 ### 
 # Open the given, or current, directory in gitx.
 ###
 gitx() {
 	if [ "$#" -lt 1 ]; then
-		$(/Users/gerjo/Applications/GitX.app/Contents/Resources/gitx)
+		${gitx_path}/Contents/Resources/gitx
 	else
-		$(/Users/gerjo/Applications/GitX.app/Contents/Resources/gitx --git-dir=$1)
+		${gitx_path}/Contents/Resources/gitx --git-dir=$1
 	fi
 }
 
