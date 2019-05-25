@@ -9,6 +9,7 @@ PATHS=(
 	
 	~/bin
 	~/Library/Android/sdk/platform-tools
+	~/rubygems/bin
 )
 
 # Warn about paths not found. Generally indicative of something going wrong. 
@@ -20,6 +21,9 @@ for P in "${PATHS[@]}"; do
 		echo "nonexistent path '$P' could not be added to \$PATH"
 	fi
 done
+
+# otherwise it requires root to install gems
+export GEM_HOME=~/rubygems
 
 source ~/esoteric/git-prompt.sh
 source ~/esoteric/git-completion.bash
