@@ -31,9 +31,6 @@ source ~/esoteric/git-completion.bash
 export EDITOR=nano
 export VISUAL=nano
 
-# Shorthand for finding a file.
-alias qfind="find . -iname "
-
 # Add fancy colors to ls.
 alias ls="ls -G"
 
@@ -55,6 +52,49 @@ gitx() {
 	else
 		${gitx_path}/Contents/Resources/gitx --git-dir=$1
 	fi
+}
+
+qfind() {
+	if [ "$#" -lt 1 ]; then
+	    echo "fatal: no file to search for specified"
+		return 1
+	fi
+	
+	echo $(find . -iname "$1*" -not -path '*/\.*' | HEAD -n 1)
+}
+
+qopen() {
+	if [ "$#" -lt 1 ]; then
+	    echo "fatal: no file to search for specified"
+		return 1
+	fi
+	
+	# First argument represents the file or pattern searched for
+	FILE=$(qfind "$1")
+	
+	if [ -z "$FILE" ]; then
+		echo "error: file not found"
+		return 1
+	fi
+	
+	return $(open $FILE) 
+}
+
+qmate() {
+	if [ "$#" -lt 1 ]; then
+	    echo "fatal: no file to search for specified"
+		return 1
+	fi
+	
+	# First argument represents the file or pattern searched for
+	FILE=$(qfind "$1")
+	
+	if [ -z "$FILE" ]; then
+		echo "error: file not found"
+		return 1
+	fi
+	
+	return $(mate $FILE) 
 }
 
 ### 
