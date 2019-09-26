@@ -106,20 +106,20 @@ blame() {
 	    echo "fatal: did not specify a file name or pattern"
 		return 1
 	fi
-	
-	# First argument represents the file or pattern searched for
-	FILE=$1
-	
+
 	# Grab all but the first argument. This is later directly passed into
 	# the git blame command.
 	ARGS=${@:2}
+
+	FILEPATH=$(qfind "$1")
 	
-	# Search for files only, case insensitive. Ignore anything inside
-	# hidden folders
-	FILEPATH=$(find . -type f -iname $FILE -not -path '*/\.*'|head -n1)
+	if [ -z "$FILEPATH" ]; then
+		echo "error: file not found in current checkout"
+		return 1
+	fi
 	
 	# -c effectively removes file in which the line of code was introduced.
-	git blame -c $FILEPATH $ARGS
+	git blame -c "$FILEPATH" $ARGS
 }
 
 ###
