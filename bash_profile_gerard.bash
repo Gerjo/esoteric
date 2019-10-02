@@ -60,7 +60,13 @@ qfind() {
 		return 1
 	fi
 	
-	echo $(find . -iname "$1*" -not -path '*/\.*' | HEAD -n 1)
+	RES=$(find . -iname "$1" -not -path '*/\.*' | HEAD -n 1)
+
+	if [ -z "$RES" ]; then
+	    echo $(find . -iname "$1*" -not -path '*/\.*' | HEAD -n 1)
+	else
+		echo $RES
+	fi
 }
 
 qopen() {
