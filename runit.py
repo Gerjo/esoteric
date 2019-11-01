@@ -64,6 +64,7 @@ recipes = {}
 recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && (./out; rm ./out)"
 recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && (./out; rm ./out)"
 recipes[".js"]  = "node {}"
+recipes[".scpt"]  = "osascript {}"
 recipes[".php"] = "php {}"
 recipes[".cs"]  = run_cs
 recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && (./out; rm ./out)"
