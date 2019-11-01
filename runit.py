@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys, os, subprocess
-import os.path
+import os.path, fnmatch
 import argparse
 import time
 
@@ -13,37 +13,44 @@ def run_java(filename, extension, args):
     
     run(cmd, extension, args)
     
-def run_cs(filename, extension, args):
-    
-    # gerjo: search the unity hub path for the latest installation, instead of 
-    # hardcoding paths here.
-    
-    compilers = [
-        "/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
-        "/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
-        "/Applications/Unity/Hub/Editor/2018.3.11f1/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
-        "/Applications/Unity/Hub/Editor/2018.4.3f1/Unity.app/Contents/MonoBleedingEdge/bin/mcs",
+def find_cs_binaries():
+    roots = [
+        "/Applications/Unity/Hub/Editor/",
+        
+        # Non unity hub installations
+        "/Applications/Unity/"
     ]
-
-    runtimes = [
-        "/Users/gerjo/extern/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mono",
-        "/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/bin/mono",
-        "/Applications/Unity/Hub/Editor/2018.3.11f1/Unity.app/Contents/MonoBleedingEdge/bin/mono",
-        "/Applications/Unity/Hub/Editor/2018.4.3f1/Unity.app/Contents/MonoBleedingEdge/bin/mono",
-    ]
+    
+    # Only "MonoBleedingEdge" seems to work.
+    compiler_executable = "*/MonoBleedingEdge/bin/mcs"
+    runtime_executable = "*/MonoBleedingEdge/bin/mono"
     
     compiler = runtime = None
     
-    for bin in compilers:
-        if os.path.isfile(bin):
-            compiler = bin
-            
-    for bin in runtimes:
-        if os.path.isfile(bin):
-            runtime = bin
+    for root in roots:
+        for subroot, dirnames, filenames in os.walk(root):
+            for candidate in filenames:
+                candidate = os.path.join(subroot, candidate) 
+                
+                if fnmatch.fnmatch(candidate, compiler_executable):
+                    compiler = candidate
+                    
+                if fnmatch.fnmatch(candidate, runtime_executable):
+                    runtime = candidate
+                    
+                # early out
+                if compiler != None and runtime != None: 
+                    return (compiler, runtime)
+                    
+    return (compiler, runtime)
+    
+def run_cs(filename, extension, args):
+    
+    compiler, runtime = find_cs_binaries()
     
     if compiler == None or runtime == None:
         error(4, "Cannot run {} files. Either runtime or compiler isn't found.".format(extension))
+    
     
     tmp = "out.exe";
     
