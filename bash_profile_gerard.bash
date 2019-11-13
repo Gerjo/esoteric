@@ -9,6 +9,8 @@ PATHS=(
 	
 	~/bin
 	~/Library/Android/sdk/platform-tools
+	~/Library/Android/sdk/tools
+	~/Library/Android/sdk/tools/bin
 	~/rubygems/bin
 )
 
@@ -31,6 +33,7 @@ source ~/esoteric/git-completion.bash
 export EDITOR=nano
 export VISUAL=nano
 
+export ANDROID_HOME=~/Library/Android/sdk/
 # Add fancy colors to ls.
 alias ls="ls -G"
 
