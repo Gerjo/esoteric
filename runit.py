@@ -68,6 +68,11 @@ def run_cs(filename, extension, args):
 
 recipes = {}
 
+# 
+#recipes[""] = {
+#    "cordova": "cordova prepare browser"
+#}
+
 recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && (./out; rm ./out)"
 recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && (./out; rm ./out)"
 recipes[".js"]  = "node {}"
