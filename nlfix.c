@@ -1,11 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-/// Read from stdin and convert pesky mac newlines into unix.
-/// Leaves windows newlines intact. Most tools seem to interpret
-/// these fine anyway - and our current repository is riddled 
-/// with them.
-/// 
+/// Read from stdin and convert  mac and windows newlines into unix.
+///
 /// compile with: gcc nlfix.c -o nlfix
 /// example: echo -e "hello\rfoo" | nlfix
 /// example: cat myfile.txt | nlfix | tee out.txt
@@ -70,12 +67,11 @@ void analyse(FILE* file, int doOut, Stats* stats) {
 		for(int i = 0; i < retrieved; ++i) {
 			char current = buffer[i];
 						
-			if(current == '\r' && last == '\n') {
+            if(current == '\n' && last == '\r') {
 				++stats->win;
 				
-				// Keep as-is. (don't mess up git)
 				if(doOut)
-					fputs("\r\n", stdout);
+					fputs("\n", stdout);
 				
 			} else if(current == '\r') {
 				// withhold tentative Mac newline
@@ -107,10 +103,9 @@ void analyse(FILE* file, int doOut, Stats* stats) {
 }
 
 void print_stats(Stats* stats) {
-	printf(" os   | escape | hex       | count \n");
-	printf("-------------------------------\n");
-	printf(" win  | \\n\\r   | 0x0a 0x0d | %d\n", stats->win);
-	printf(" unix | \\n     | 0x0a (^J) | %d\n", stats->unix);
-	printf(" mac  | \\r     | 0x0d (^M) | %d\n", stats->mac);
+    printf(" os   | escape | name | hex       | count \n");
+    printf("-------------------------------\n");
+    printf(" win  | \\r\\n   | CRLF | 0x0d 0x0a | %d\n", stats->win);
+    printf(" unix | \\n     |  LF  | 0x0a (^J) | %d\n", stats->unix);
+    printf(" mac  | \\r     |  CR  | 0x0d (^M) | %d\n", stats->mac);
 }
-
