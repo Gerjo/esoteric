@@ -43,6 +43,9 @@ alias ll='ls -lG'
 # Show as list layout, with colors, and hidden files.
 alias la='ls -lGa'
 
+# Extract a compressed tarball
+alias untar='tar -zxvf'
+
 # Find out where gitx is installed on my system.
 gitx_path=$(find ~/Applications /Applications -iname "gitx.app" -type d -maxdepth 1 2>/dev/null)
 
