@@ -131,6 +131,19 @@ blame() {
 	git blame -c "$FILEPATH" $ARGS
 }
 
+disk_write_speed() {
+	if [ "$#" -lt 1 ]; then
+	    echo "fatal: no file specified"
+		return 1
+	fi
+	
+	if [ -f "$1" ]; then
+		echo "error: file exists"
+	fi
+	
+	res=$(dd if=/dev/zero of=$1 bs=1g count=1 && rm $1)
+}
+
 ###
 # Determine the hostname to show on prompt.
 ###
