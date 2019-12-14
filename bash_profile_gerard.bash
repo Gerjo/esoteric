@@ -46,6 +46,10 @@ alias la='ls -lGa'
 # Extract a compressed tarball
 alias untar='tar -zxvf'
 
+if ! [ -x "$(command -v PICO)" ]; then
+    alias pico='nano'
+fi
+
 # Find out where gitx is installed on my system.
 gitx_path=$(find ~/Applications /Applications -iname "gitx.app" -type d -maxdepth 1 2>/dev/null)
 
