@@ -122,7 +122,7 @@ for graph in graphs:
         print("graph_title {}".format(graph["graph_title"]))
         print("graph_category {}".format(graph["graph_category"]))
         print("graph_info {}".format(graph["graph_info"]))
-	print("graph_args --base 1000")
+        print("graph_args --base 1000")
 
     for ident, label in graph["fields"]:
         
