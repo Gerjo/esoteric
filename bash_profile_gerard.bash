@@ -1,5 +1,3 @@
-export ANDROID_HOME=/Users/gerjo/Library/Android/sdk
-
 PATHS=(
 	#/opt/local/bin 
 	/usr/local 
@@ -14,13 +12,10 @@ PATHS=(
 	~/rubygems/bin
 )
 
-# Warn about paths not found. Generally indicative of something going wrong. 
-# (e.g., android SDK changed its install dir.)
+# add the paths one by one, if the exist
 for P in "${PATHS[@]}"; do 
 	if [ -d "$P" ]; then
 		PATH=$PATH:$P
-	else
-		echo "nonexistent path '$P' could not be added to \$PATH"
 	fi
 done
 
@@ -134,6 +129,9 @@ blame() {
 	git blame -c "$FILEPATH" $ARGS
 }
 
+###
+# Crude way of measuring write speed
+###
 disk_write_speed() {
 	if [ "$#" -lt 1 ]; then
 	    echo "fatal: no file specified"
@@ -148,10 +146,43 @@ disk_write_speed() {
 }
 
 ###
+# Generate a random UTF-8 icon
+###
+get_random_utf_icon() {
+	ICONS=("♤" "♙" "☚" "☋" "☍" "☧" "☏" "☇" "♇" "♫" "♆" "☈" "♅" 
+           "♗" "♚" "♩" "♕" "☱" "♞" "♯" "☟" "☩" "♬" "♁" "♭" "☼" 
+           "♧" "☜" "☉" "✐" "☌" "♘" "☛" "☒" "♔" "♛" "☽" "☨" "☭" 
+           "☡" "☻" "♜" "☊" "★" "♢" "*" "♖" "♝" "♃" "✎" "☬" "♮" 
+           "☫" "♡" "❥" "♪" "☤" "☾" "☥" "♄" "☞" )
+		
+	RANDOM=$$$(date +%s)
+	WINNER=${ICONS[$RANDOM % ${#ICONS[@]} ]}	
+		
+	echo ${WINNER}
+}
+
+###
+# Return a red color when running as root, non-red otherwise.
+###
+get_icon_color() {
+	if [ "$EUID" -ne 0 ]; then
+		# Not root
+    	echo "\[\033[0;37m\]"
+	else
+		# Running as root
+		echo "\[\033[1;31m\]"
+	fi
+}
+
+###
 # Determine the hostname to show on prompt.
 ###
 show_host() {
-	echo "\u@\h "
+	echo "\[\033[0;37m\]\u\[\033[0;90m\]@\[\033[0;90m\]\h "
 }
 
-export PS1="$(show_host)\[\033[32m\]\W\[\033[33m\]\$(__git_ps1)\[\033[00m\] ❤ "
+show_dir() {
+	echo "\\W"
+}
+
+export PS1="$(show_host)\[\033[32m\]$(show_dir)\[\033[33m\]\$(__git_ps1)$(get_icon_color) $(get_random_utf_icon) \[\033[00m\]"
