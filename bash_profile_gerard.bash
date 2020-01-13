@@ -59,6 +59,19 @@ gitx() {
 	fi
 }
 
+### 
+# Find the first xcode project in the current folder, or specified folder.
+###
+xcode() {
+ 
+	if [ "$#" -lt 1 ]; then
+		open $(find . -name "*.xcodeproj" -d -print -quit)
+	else
+		open $(find $1 -name "*.xcodeproj" -d -print -quit)
+	fi
+ 
+}
+
 qfind() {
 	if [ "$#" -lt 1 ]; then
 	    echo "fatal: no file to search for specified"
