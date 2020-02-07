@@ -148,7 +148,7 @@ def main(args):
         error(2, "Cannot execute '{}' files. No known recipe.".format(extension))
 
 parser = argparse.ArgumentParser(description="Execute any sort of file.", epilog="This ought to make it easier to quickly test something, right?")
-parser.add_argument("recipe", help="The recipe to use in case file extension is ambiguous", nargs="?", default=None)
+parser.add_argument("--recipe", help="The recipe to use in case file extension is ambiguous", dest="recipe", nargs="?", default=None)
 parser.add_argument("filename", help="The to be executed file")
 parser.add_argument("--entr", help="Monitor for file changes", dest="entr", action="store_const", default=False, const=True)
 parser.add_argument("--maxdepth", help="Recursion depth of find, in case entr is used", dest="maxdepth", action="store", default=2)
