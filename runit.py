@@ -5,11 +5,19 @@ import os.path, fnmatch
 import argparse
 import time
 
+def create_args_list(args):        
+    res = ""
+
+    for arg in args:
+        res += "'{}' ".format(arg.replace("'", "'\\''"))
+
+    return res.strip(" ")
+
 def run_java(filename, extension, args):
 
     executable = filename[0:-len(extension)]
     
-    cmd = "javac {} && java {} && rm {}.class".format(filename, executable, executable)
+    cmd = "javac {} && java {} {} && rm {}.class".format(filename, executable, create_args_list(args.vars), executable)
     
     run(cmd, extension, args)
     
@@ -61,7 +69,7 @@ def run_cs(filename, extension, args):
     cmd += " && "
     
     # ... execute and delete
-    cmd += "({} '{}'; rm -f '{}')".format(runtime, tmp, tmp)
+    cmd += "({} '{}' {}; rm -f '{}')".format(runtime, tmp, create_args_list(args.vars), tmp)
     
     run(cmd, extension, args)
     
@@ -73,20 +81,20 @@ recipes = {}
 #    "cordova": "cordova prepare browser"
 #}
 
-recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && (./out; rm ./out)"
-recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && (./out; rm ./out)"
-recipes[".js"]  = "node {}"
-recipes[".scpt"]  = "osascript {}"
-recipes[".php"] = "php {}"
+recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && (./out {}; rm ./out)"
+recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && (./out {}; rm ./out)"
+recipes[".js"]  = "node {} {}"
+recipes[".scpt"]  = "osascript {} {}"
+recipes[".php"] = "php {} {}"
 recipes[".cs"]  = run_cs
-recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && (./out; rm ./out)"
-recipes[".r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {}" 
+recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && (./out {}; rm ./out)"
+recipes[".r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {} {}" 
 
-recipes[".py"]  = "python3 {}"
+recipes[".py"]  = "python3 {} {}"
 
 recipes[".m"] = {
     "matlab": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
-    "objc":   "clang -framework Foundation {} -o out && (./out; rm ./out)"
+    "objc":   "clang -framework Foundation {} -o out && (./out {}; rm ./out)"
 }
 
 recipes[".java"] = run_java
@@ -105,7 +113,7 @@ def run(cmd, extension, args):
         # Wrap in time, and use a custom format specifier to 
         # return the real time. Format is passed twice, via
         # different means for increased compatibility.
-        cmd = "TIMEFORMAT='{0}'; echo '{1}'; time -f '{0}' {2}; unset TIMEFORMAT;".format(timeformat,ruler, cmd)
+        cmd = "TIMEFORMAT='{0}'; echo '{1}'; time -f '{0}' {2}; unset TIMEFORMAT;".format(timeformat, ruler, cmd)
     
     if args.entr:
         entr_cmd = "find . -maxdepth {} -type f -name '*{}' |  entr -c -r sh -c '{}';"
@@ -116,7 +124,8 @@ def run(cmd, extension, args):
     
     else:
         os.system(cmd)
-    
+
+
 def main(args):
 
     filename = args.filename
@@ -143,7 +152,7 @@ def main(args):
         if callable(recipes[extension]):
             recipes[extension](filename, extension, args)
         else:
-            run(recipe.format(filename), extension, args)
+            run(recipe.format(filename, create_args_list(args.vars)), extension, args)
     else:
         error(2, "Cannot execute '{}' files. No known recipe.".format(extension))
 
@@ -153,6 +162,7 @@ parser.add_argument("filename", help="The to be executed file")
 parser.add_argument("--entr", help="Monitor for file changes", dest="entr", action="store_const", default=False, const=True)
 parser.add_argument("--maxdepth", help="Recursion depth of find, in case entr is used", dest="maxdepth", action="store", default=2)
 parser.add_argument("--nobench", help="Remote benchmark and ruler", dest="bench", action="store_const", default=True, const=True)
+parser.add_argument("vars", nargs="*", help="optional arguments passed onto executed program")
 
 args = parser.parse_args()
 
