@@ -106,11 +106,11 @@ def run(cmd, extension, args):
         cmd = "TIMEFORMAT='\n{0}\ntook %R seconds'; echo '{0}'; time {1}; unset TIMEFORMAT;".format(ruler, cmd)
     
     if args.entr:
-        entr_cmd = "find .  -type f -name '*{}' -maxdepth {} |  entr -c -r sh -c '{}';"
+        entr_cmd = "find . -maxdepth {} -type f -name '*{}' |  entr -c -r sh -c '{}';"
         
         escaped_cmd = cmd.replace("'", "'\\''")
                 
-        os.system(entr_cmd.format(extension, args.maxdepth, escaped_cmd))
+        os.system(entr_cmd.format(args.maxdepth, extension, escaped_cmd))
     
     else:
         os.system(cmd)
