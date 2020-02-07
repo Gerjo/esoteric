@@ -100,10 +100,12 @@ def run(cmd, extension, args):
     
     if args.bench:
         ruler = "----------------------"
-        
+        timeformat = "\n{0}\ntook %e seconds".format(ruler)
+
         # Wrap in time, and use a custom format specifier to 
-        # return the real time.
-        cmd = "TIMEFORMAT='\n{0}\ntook %R seconds'; echo '{0}'; time {1}; unset TIMEFORMAT;".format(ruler, cmd)
+        # return the real time. Format is passed twice, via
+        # different means for increased compatibility.
+        cmd = "TIMEFORMAT='{0}'; echo '{1}'; time -f '{0}' {2}; unset TIMEFORMAT;".format(timeformat,ruler, cmd)
     
     if args.entr:
         entr_cmd = "find . -maxdepth {} -type f -name '*{}' |  entr -c -r sh -c '{}';"
