@@ -23,7 +23,16 @@ done
 export GEM_HOME=~/rubygems
 
 source ~/esoteric/git-prompt.sh
-source ~/esoteric/git-completion.bash
+
+
+if [[ "$SHELL" == "/bin/zsh" ]]; then
+	ISZSH=true
+	# git-completion needs a wrapper to load
+	fpath=(~/esoteric/git-completion.zsh $fpath)
+else
+	ISZSH=false
+	source ~/esoteric/git-completion.bash
+fi
 
 export EDITOR=nano
 export VISUAL=nano
@@ -202,4 +211,25 @@ show_dir() {
 	echo "\\W"
 }
 
-export PS1="$(show_host)\[\033[32m\]$(show_dir)\[\033[33m\]\$(__git_ps1)$(get_icon_color) $(get_random_utf_icon) \[\033[00m\]"
+
+
+
+if [[ "$ISZSH" == true ]] ; then
+	#for i in {1..256}; do print -P "%F{$i}Color : $i"; done;
+
+	RED="%F{9}"
+	GREEN="%F{70}"
+	GRAY="%F{251}"
+	DARKGRAY="%F{239}"
+	WHITE="%F{256}"
+	YELLOWGREEN="%F{184}"
+
+	setopt PROMPT_SUBST
+	export PROMPT="${GRAY}%n${DARKGRAY}@%m${GREEN} %1~%f%b${YELLOWGREEN}\$(__git_ps1)${WHITE} $(get_random_utf_icon) "
+
+else
+	export PS1="$(show_host)\[\033[32m\]$(show_dir)\[\033[33m\]\$(__git_ps1)$(get_icon_color) $(get_random_utf_icon) \[\033[00m\]"	
+fi
+
+#RPROMPT='[%F{yellow}%?%f]'
+
