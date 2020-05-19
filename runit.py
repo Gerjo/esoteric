@@ -79,6 +79,9 @@ recipes[".js"]  = "node {}"
 recipes[".scpt"]  = "osascript {}"
 recipes[".php"] = "php {}"
 recipes[".cs"]  = run_cs
+recipes[".sh"]  = "sh {}"
+recipes[".bash"]  = "bash {}"
+recipes[".zsh"]  = "zsh {}"
 recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && (./out; rm ./out)"
 recipes[".r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {}" 
 
