@@ -52,7 +52,7 @@ def run_cs(filename, extension, args):
     compiler, runtime = find_cs_binaries()
     
     if compiler == None or runtime == None:
-        error(4, "Cannot run {} files. Either runtime or compiler isn't found.".format(extension))
+        error(4, "Cannot run '{}' files. Either runtime or compiler isn't found.".format(extension))
     
     
     tmp = "out.exe";
