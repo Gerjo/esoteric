@@ -76,21 +76,21 @@ recipes = {}
 #    "cordova": "cordova prepare browser"
 #}
 
-recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {source} -o out && (./out {args}; rm ./out)"
-recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {source} -o out && (./out {args}; rm ./out)"
-recipes[".js"]  = "node {source} {args}"
-recipes[".scpt"]  = "osascript {source} {args}"
-recipes[".php"] = "php {source} {args}"
-recipes[".cs"]  = run_cs
-recipes[".sh"]  = "sh {source} {args}"
-recipes[".bash"]  = "bash {source} {args}"
-recipes[".zsh"]  = "zsh {source} {args}"
-recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {source} -o out && (./out {args}; rm ./out)"
-recipes[".r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {source} {args}" 
+recipes["cpp"] = "c++ -Wall -Wextra -std=c++14 {source} -o out && (./out {args}; rm ./out)"
+recipes["c"]   = "gcc -Wall -Wextra -std=c11 {source} -o out && (./out {args}; rm ./out)"
+recipes["js"]  = "node {source} {args}"
+recipes["scpt"]  = "osascript {source} {args}"
+recipes["php"] = "php {source} {args}"
+recipes["cs"]  = run_cs
+recipes["sh"]  = "sh {source} {args}"
+recipes["bash"]  = "bash {source} {args}"
+recipes["zsh"]  = "zsh {source} {args}"
+recipes["mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {source} -o out && (./out {args}; rm ./out)"
+recipes["r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {source} {args}" 
 
-recipes[".py"]  = "python3 {source} {args}"
+recipes["py"]  = "python3 {source} {args}"
 
-recipes[".m"] = {
+recipes["m"] = {
     "matlab": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{source}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
     "objc":   "clang -framework Foundation {source} -o out && (./out {args}; rm ./out)"
 }
@@ -129,7 +129,7 @@ def main(args):
     filename = args.filename
     pwd = os.getcwd()
     
-    extension = os.path.splitext(filename)[1].lower();
+    extension = os.path.splitext(filename)[1].lower().lstrip(".");
 
     if extension in recipes:
         recipe = recipes[extension]
