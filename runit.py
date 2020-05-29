@@ -90,13 +90,13 @@ recipes["r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {source} {ar
 
 recipes["py"]  = "python3 {source} {args}"
 
-recipes["m"] = {
-    "matlab": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{source}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
-    "objc":   "clang -framework Foundation {source} -o out && (./out {args}; rm ./out)"
-}
+recipes["matlab"] = "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{source}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\""
+recipes["objc"] = "clang -framework Foundation {source} -o out && (./out {args}; rm ./out)"
+
+
+recipes["m"] = ["matlab", "objc"]
 
 recipes[".java"] = run_java
-
 
 def error(code, str):
     sys.stderr.write(str + "\n")
@@ -128,32 +128,42 @@ def main(args):
 
     filename = args.filename
     pwd = os.getcwd()
-    
-    extension = os.path.splitext(filename)[1].lower().lstrip(".");
-
-    if extension in recipes:
-        recipe = recipes[extension]
+   
+    extension = os.path.splitext(filename)[1].lower().lstrip(".")
+   
+    # Use explicitly defined recipe when provided
+    if args.recipe:
+        recipe = args.recipe
         
-        if type(recipe) == dict:
-            
-            if not args.recipe or args.recipe not in recipe:
-                errormessage = "Multiple recipes known for file extension '{}'. Try one of these:\n".format(extension)
-                
-                for key in recipe:
-                    errormessage += "  {} {} {}\n".format(os.path.basename(sys.argv[0]), key, filename)
-                    
-                error(3, errormessage)
-                
-            else:
-                recipe = recipe[args.recipe]
-            
-        if callable(recipes[extension]):
-            recipes[extension](filename, extension, args)
-        else:
-            run(recipe.format(source=filename, args=get_sub_args(args)), extension, args)
+    # otherwise deduce it from file extension
+    elif extension is not "":
+        recipe = extension
     else:
-        error(2, "Cannot execute '{}' files. No known recipe.".format(extension))
-
+        recipe = None
+        
+    if recipe in recipes:
+        
+        # Ambiguous recipe. List the alternatives
+        if isinstance(recipes[recipe], list):
+            errormessage = "recipe '{}' is ambigious, try the following:\n".format(recipe);
+            
+            for key in recipes[recipe]:
+                errormessage += "  {} {} {} [args...]\n".format(os.path.basename(sys.argv[0]), key, filename)
+            
+            error(3, errormessage)
+        
+        # Fancy recipe, requires helper code to run    
+        elif callable(recipes[recipe]):
+            recipes[recipe](filename, extension, args)
+            
+        # Execute recipe based on a string    
+        else:
+            run(recipes[recipe].format(source=filename, args=get_sub_args(args)), extension, args)
+            
+    else:
+        error(2, "Cannot execute '{}' files. No known recipe.".format(recipe))
+    
+        
 parser = argparse.ArgumentParser(description="Execute any sort of file.", epilog="This ought to make it easier to quickly test something, right?")
 parser.add_argument("recipe", help="The recipe to use in case file extension is ambiguous", nargs="?", default=None)
 parser.add_argument("filename", help="The to be executed file")
