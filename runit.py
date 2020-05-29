@@ -67,7 +67,6 @@ def run_cs(filename, extension, args):
     cmd += "({} '{}' {}; rm -f '{}')".format(runtime, tmp, get_sub_args(args), tmp)
     
     run(cmd, extension, args)
-    
 
 recipes = {}
 
@@ -87,6 +86,7 @@ recipes["bash"]  = "bash {source} {args}"
 recipes["zsh"]  = "zsh {source} {args}"
 recipes["mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {source} -o out && (./out {args}; rm ./out)"
 recipes["r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {source} {args}" 
+recipes["npm"] = "npm start --prefix {source}"
 
 recipes["py"]  = "python3 {source} {args}"
 
@@ -103,9 +103,6 @@ def error(code, str):
     sys.exit(code) 
     
 def run(cmd, extension, args):
-    
-    #print(cmd)
-    #exit(0)
     
     if args.bench:
         ruler = "----------------------"
@@ -124,6 +121,14 @@ def run(cmd, extension, args):
     else:
         os.system(cmd)
     
+def get_recipe_from_path(path):
+    
+    # Node projects have a package file.
+    if os.path.isfile(os.path.join(path, "package.json")):
+        return "npm"
+    
+    return None
+    
 def main(args):
 
     filename = args.filename
@@ -138,8 +143,22 @@ def main(args):
     # otherwise deduce it from file extension
     elif extension is not "":
         recipe = extension
+    
+    # Deduce it from path    
+    elif os.path.isdir(filename):
+        recipe = get_recipe_from_path(filename)
+    
+        if recipe is None:
+            error(6, "Cannot determine recipe based on path '{}'.".format(filename))
+    
+    # Custom error in case file does not even exist
+    elif not os.path.isfile(filename):
+        error(5, "Cannot determine recipe for executing '{}', file does not exist.".format(filename))
+        
+    # Possibly only reached through programming error
     else:
-        recipe = None
+        error(4, "Cannot determine recipe for executing '{}'.".format(filename))
+        
         
     if recipe in recipes:
         
