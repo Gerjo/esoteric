@@ -10,7 +10,7 @@ def get_sub_args(args):
 
 def run_java(filename, extension, args):
 
-    executable = filename[0:-len(extension)]
+    executable = filename[0:-len(extension)-1]
     
     cmd = "javac {} && java {} {} && rm {}.class".format(filename, executable, get_sub_args(args), executable)
     
