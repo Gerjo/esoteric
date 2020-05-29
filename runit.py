@@ -96,7 +96,7 @@ recipes["objc"] = "clang -framework Foundation {source} -o out && (./out {args};
 
 recipes["m"] = ["matlab", "objc"]
 
-recipes[".java"] = run_java
+recipes["java"] = run_java
 
 def error(code, str):
     sys.stderr.write(str + "\n")
