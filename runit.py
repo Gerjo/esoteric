@@ -187,7 +187,7 @@ def run(cmd, recipe, args):
         
         # Wrap in time, and use a custom format specifier to 
         # return the real time.
-        cmd = "TIMEFORMAT=\"\n{0}\ntook %R seconds starting at $(date +'%T')\"; echo '{0}'; time {1}; unset TIMEFORMAT;".format(ruler, cmd)
+        cmd = "TIMEFORMAT=\"\n{0}\ntook %R seconds starting at $(date +'%T')\"; echo '{0}'; time ({1}); unset TIMEFORMAT;".format(ruler, cmd)
     
     if args.entr:
         entr_cmd = "find . -type f {} -maxdepth {} |  entr -c -r sh -c '{}';"
