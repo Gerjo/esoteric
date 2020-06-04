@@ -99,7 +99,7 @@ def run_java(filename, recipe, args):
     # Java uses the file's name to determine the entry point
     executable = os.path.splitext(os.path.basename(filename))[0]
     
-    cmd = "javac {} -d . && java {} {} && rm {}.class".format(filename, executable, get_sub_args(args), executable)
+    cmd = "javac '{}' -d . && java '{}' {} && rm '{}.class'".format(filename, executable, get_sub_args(args), executable)
     
     run(cmd, recipe, args)
     
