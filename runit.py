@@ -11,82 +11,98 @@ def get_recipes():
         {
             "recipe": "cpp",
             "ext": [".cpp", ".h"],
-            "run": "c++ -Wall -Wextra -std=c++14 {source} -o out && (./out {args}; rm ./out)"
+            "run": "c++ -Wall -Wextra -std=c++14 {source} -o out && (./out {args}; rm ./out)",
+            "entr_prune": []
         },
         {
             "recipe": "c",
             "ext": [".c", ".h"],
-            "run": "gcc -Wall -Wextra -std=c11 {source} -o out && (./out {args}; rm ./out)"
+            "run": "gcc -Wall -Wextra -std=c11 {source} -o out && (./out {args}; rm ./out)",
+            "entr_prune": []
         },
         {
             "recipe": "javascript",
             "ext": [".js"],
-            "run": "node {source} {args}"
+            "run": "node {source} {args}",
+            "entr_prune": ["./node_modules"]
         },
         {
             "recipe": "osascript",
             "ext": [".scpt"],
-            "run": "osascript {source} {args}"
+            "run": "osascript {source} {args}",
+            "entr_prune": []
         },
         {
             "recipe": "php",
             "ext": [".php"],
-            "run": "php {source} {args}"
+            "run": "php {source} {args}",
+            "entr_prune": []
         },
         {
             "recipe": "cs",
             "ext": [".cs"],
-            "run": run_cs
+            "run": run_cs,
+            "entr_prune": []
         },
         {
             "recipe": "sh",
             "ext": [".sh"],
-            "run": "sh {source} {args}"
+            "run": "sh {source} {args}",
+            "entr_prune": []
         },
         {
             "recipe": "bash",
             "ext": [".bash"],
-            "run": "bash {source} {args}"
+            "run": "bash {source} {args}",
+            "entr_prune": []
         },
         {
             "recipe": "zsh",
             "ext": [".zsh"],
-            "run": "zsh {source} {args}"
+            "run": "zsh {source} {args}",
+            "entr_prune": []
         },
         {
             "recipe": "objc++",
             "ext": [".mm"],
-            "run": "clang++ -std=c++14 -ObjC++ -framework Foundation {source} -o out && (./out {args}; rm ./out)"
+            "run": "clang++ -std=c++14 -ObjC++ -framework Foundation {source} -o out && (./out {args}; rm ./out)",
+            "entr_prune": []
         },
         {
             "recipe": "r",
             "ext": [".r"],
-            "run": "/Library/Frameworks/R.framework/Resources/Rscript {source} {args}" 
+            "run": "/Library/Frameworks/R.framework/Resources/Rscript {source} {args}",
+            "entr_prune": []
         },
         {
             "recipe": "npm",
             "ext": [".js", ".html", ".css"],
-            "run": "npm start --prefix {source}"
+            "run": "npm start --prefix {source}",
+            "entr_prune": ["./node_modules"]
         },
         {
             "recipe": "python",
             "ext": [".py", ".py3"],
-            "run": "python3 {source} {args}"
+            "run": "python3 {source} {args}",
+            "entr_prune": []
         },
         {
             "recipe": "matlab",
             "ext": [".m"],
-            "run": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{source}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\""
+            "run": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{source}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
+            "entr_prune": []
         },
     	{
             "recipe": "objc",
             "ext": [".m"],
-            "run": "clang -framework Foundation {source} -o out && (./out {args}; rm ./out)"
+            "run": "clang -framework Foundation {source} -o out && (./out {args}; rm ./out)",
+            "entr_prune": []
         },
         {
             "recipe": "java",
             "ext": [".java"],
-            "run": run_java
+            "run": run_java,
+            "entr_prune": []
         },
     ]
 
@@ -190,7 +206,9 @@ def run(cmd, recipe, args):
         cmd = "TIMEFORMAT=\"\n{0}\ntook %R seconds starting at $(date +'%T')\"; echo '{0}'; time ({1}); unset TIMEFORMAT;".format(ruler, cmd)
     
     if args.entr:
-        entr_cmd = "find . -type f {} -maxdepth {} |  entr -c -r sh -c '{}';"
+        entr_cmd = "find . {} -type f {} -maxdepth {} -print |  entr -c -r sh -c '{}';"
+        
+       
         pattern = ""
         
         for i, ext in enumerate(recipe["ext"]):
@@ -198,11 +216,17 @@ def run(cmd, recipe, args):
             if i > 0:
                 pattern += "-o "
             
-            pattern += "-name '*{}' ".format(ext)
+            pattern += "-name '*{}' -print ".format(ext)
         
         escaped_cmd = cmd.replace("'", "'\\''")
-                
-        os.system(entr_cmd.format(pattern, args.maxdepth, escaped_cmd))
+        
+        prune = ""
+        
+        if not args.no_prune:
+            for d in recipe["entr_prune"]:
+                prune += "-path ./node_modules -prune -o ".format(d)
+        
+        os.system(entr_cmd.format(prune, pattern, args.maxdepth, escaped_cmd))
     
     else:
         os.system(cmd)
@@ -260,7 +284,8 @@ parser = argparse.ArgumentParser(description="Execute any sort of file.", epilog
 parser.add_argument("recipe", help="The recipe to use in case file extension is ambiguous", nargs="?", default=None)
 parser.add_argument("filename", help="The to be executed file")
 parser.add_argument("--entr", help="Monitor for file changes", dest="entr", action="store_const", default=False, const=True)
-parser.add_argument("--maxdepth", help="Recursion depth of find, in case entr is used", dest="maxdepth", action="store", default=2)
+parser.add_argument("--entr-no-prune", help="Disable pruning entr folders.", dest="no_prune", action="store_const", default=False, const=True)
+parser.add_argument("--maxdepth", help="Recursion depth of find, in case entr is used", dest="maxdepth", action="store", default=4)
 parser.add_argument("--nobench", help="Remote benchmark and ruler", dest="bench", action="store_const", default=True, const=True)
 parser.add_argument('args', nargs='*', default=None, help="Arguments passed onto the executed file")
 
