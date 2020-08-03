@@ -258,7 +258,7 @@ def main(args):
             error(7, "Requested recipe '{}' does not exist.".format(args.recipe))
         
     # otherwise deduce it from file extension
-    elif extension is not "":
+    elif extension != "":
         recipes = [r for r in get_recipes() if extension in r["ext"]]
     
         if len(recipes) > 0:
