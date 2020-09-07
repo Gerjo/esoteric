@@ -48,6 +48,21 @@ fi
 # Find out where gitx is installed on my system.
 gitx_path=$(find ~/Applications /Applications -iname "gitx.app" -type d -maxdepth 1 2>/dev/null)
 
+# 
+if ! [ -x "$(command -v mate)" ]; then
+	CODE_PATH=/mnt/c/Users/Gerard/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe
+
+	if [ -f "$CODE_PATH" ]; then
+		mate() {
+			if [ "$#" -lt 1 ]; then
+				"$CODE_PATH"
+			else
+				"$CODE_PATH" $1
+			fi
+		}
+	fi
+fi
+
 ### 
 # Open the given, or current, directory in gitx.
 ###
