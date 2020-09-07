@@ -5,21 +5,119 @@ import os.path, fnmatch
 import argparse
 import time
 
-def create_args_list(args):        
-    res = ""
+def get_recipes():
+    """Return all known recipes of this program"""
+    return [
+        {
+            "recipe": "cpp",
+            "ext": [".cpp", ".h"],
+            "run": "c++ -Wall -Wextra -std=c++14 {source} -o out && (./out {args}; rm ./out)",
+            "entr_prune": []
+        },
+        {
+            "recipe": "c",
+            "ext": [".c", ".h"],
+            "run": "gcc -Wall -Wextra -std=c11 {source} -o out && (./out {args}; rm ./out)",
+            "entr_prune": []
+        },
+        {
+            "recipe": "javascript",
+            "ext": [".js"],
+            "run": "node {source} {args}",
+            "entr_prune": ["./node_modules"]
+        },
+        {
+            "recipe": "osascript",
+            "ext": [".scpt"],
+            "run": "osascript {source} {args}",
+            "entr_prune": []
+        },
+        {
+            "recipe": "php",
+            "ext": [".php"],
+            "run": "php {source} {args}",
+            "entr_prune": []
+        },
+        {
+            "recipe": "cs",
+            "ext": [".cs"],
+            "run": run_cs,
+            "entr_prune": []
+        },
+        {
+            "recipe": "sh",
+            "ext": [".sh"],
+            "run": "sh {source} {args}",
+            "entr_prune": []
+        },
+        {
+            "recipe": "bash",
+            "ext": [".bash"],
+            "run": "bash {source} {args}",
+            "entr_prune": []
+        },
+        {
+            "recipe": "zsh",
+            "ext": [".zsh"],
+            "run": "zsh {source} {args}",
+            "entr_prune": []
+        },
+        {
+            "recipe": "objc++",
+            "ext": [".mm"],
+            "run": "clang++ -std=c++14 -ObjC++ -framework Foundation {source} -o out && (./out {args}; rm ./out)",
+            "entr_prune": []
+        },
+        {
+            "recipe": "r",
+            "ext": [".r"],
+            "run": "/Library/Frameworks/R.framework/Resources/Rscript {source} {args}",
+            "entr_prune": []
+        },
+        {
+            "recipe": "npm",
+            "ext": [".js", ".html", ".css"],
+            "run": "npm start --prefix {source}",
+            "entr_prune": ["./node_modules"]
+        },
+        {
+            "recipe": "python",
+            "ext": [".py", ".py3"],
+            "run": "python3 {source} {args}",
+            "entr_prune": []
+        },
+        {
+            "recipe": "matlab",
+            "ext": [".m"],
+            "run": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{source}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
+            "entr_prune": []
+        },
+    	{
+            "recipe": "objc",
+            "ext": [".m"],
+            "run": "clang -framework Foundation {source} -o out && (./out {args}; rm ./out)",
+            "entr_prune": []
+        },
+        {
+            "recipe": "java",
+            "ext": [".java"],
+            "run": run_java,
+            "entr_prune": []
+        },
+    ]
 
-    for arg in args:
-        res += "'{}' ".format(arg.replace("'", "'\\''"))
+def get_sub_args(args):
+    return " ".join(args.args)
 
-    return res.strip(" ")
-
-def run_java(filename, extension, args):
-
-    executable = filename[0:-len(extension)]
+def run_java(filename, recipe, args):
+    """Execute a java source code file"""
     
-    cmd = "javac {} && java {} {} && rm {}.class".format(filename, executable, create_args_list(args.vars), executable)
+    # Java uses the file's name to determine the entry point
+    executable = os.path.splitext(os.path.basename(filename))[0]
     
-    run(cmd, extension, args)
+    cmd = "javac '{}' -d . && java '{}' {} && rm '{}.class'".format(filename, executable, get_sub_args(args), executable)
+    
+    run(cmd, recipe, args)
     
 def find_cs_binaries():
     roots = [
@@ -52,12 +150,12 @@ def find_cs_binaries():
                     
     return (compiler, runtime)
     
-def run_cs(filename, extension, args):
+def run_cs(filename, recipe, args):
     
     compiler, runtime = find_cs_binaries()
     
     if compiler == None or runtime == None:
-        error(4, "Cannot run {} files. Either runtime or compiler isn't found.".format(extension))
+        error(4, "Cannot run '{}' files. Either runtime or compiler isn't found.".format(extension))
     
     
     tmp = "out.exe";
@@ -69,100 +167,127 @@ def run_cs(filename, extension, args):
     cmd += " && "
     
     # ... execute and delete
-    cmd += "({} '{}' {}; rm -f '{}')".format(runtime, tmp, create_args_list(args.vars), tmp)
+    cmd += "({} '{}' {}; rm -f '{}')".format(runtime, tmp, get_sub_args(args), tmp)
     
-    run(cmd, extension, args)
-    
-
-recipes = {}
-
-# 
-#recipes[""] = {
-#    "cordova": "cordova prepare browser"
-#}
-
-recipes[".cpp"] = "c++ -Wall -Wextra -std=c++14 {} -o out && (./out {}; rm ./out)"
-recipes[".c"]   = "gcc -Wall -Wextra -std=c11 {} -o out && (./out {}; rm ./out)"
-recipes[".js"]  = "node {} {}"
-recipes[".scpt"]  = "osascript {} {}"
-recipes[".php"] = "php {} {}"
-recipes[".cs"]  = run_cs
-recipes[".mm"]  = "clang++ -std=c++14 -ObjC++ -framework Foundation {} -o out && (./out {}; rm ./out)"
-recipes[".r"]   = "/Library/Frameworks/R.framework/Resources/Rscript {} {}" 
-
-recipes[".py"]  = "python3 {} {}"
-
-recipes[".m"] = {
-    "matlab": "matlab -nodisplay -nosplash -nodesktop -noFigureWindows -r \"try, run('{}'), catch e, fprintf('%s\\n', e.message), end;exit(0);\"",
-    "objc":   "clang -framework Foundation {} -o out && (./out {}; rm ./out)"
-}
-
-recipes[".java"] = run_java
+    run(cmd, recipe, args)
 
 
 def error(code, str):
     sys.stderr.write(str + "\n")
     sys.exit(code) 
     
-def run(cmd, extension, args):
+def execute_recipe(recipes, filename, args):
     
+    if len(recipes) == 1:
+        recipe = recipes[0]
+        
+        # Fancy recipe, requires helper code to run    
+        if callable(recipe["run"]):
+            recipe["run"](filename, recipe, args)
+        
+        # Execute recipe based on a string
+        else:
+            run(recipe["run"].format(source=filename, args=get_sub_args(args)), recipe, args)
+    else:
+        errormessage = "recipe is ambigious, try one of the following:\n";
+        
+        for r in recipes:
+            errormessage += "  {} {} {} [args...]\n".format(os.path.basename(sys.argv[0]), r["recipe"], filename)
+        
+        error(3, errormessage)
+        
+def run(cmd, recipe, args):
+
     if args.bench:
         ruler = "----------------------"
-        timeformat = "\n{0}\ntook %e seconds".format(ruler)
-
+        
         # Wrap in time, and use a custom format specifier to 
-        # return the real time. Format is passed twice, via
-        # different means for increased compatibility.
-        cmd = "TIMEFORMAT='{0}'; echo '{1}'; time -f '{0}' {2}; unset TIMEFORMAT;".format(timeformat, ruler, cmd)
+        # return the real time.
+        cmd = "TIMEFORMAT=\"\n{0}\ntook %R seconds starting at $(date +'%T')\"; echo '{0}'; time ({1}); unset TIMEFORMAT;".format(ruler, cmd)
     
     if args.entr:
-        entr_cmd = "find . -maxdepth {} -type f -name '*{}' |  entr -c -r sh -c '{}';"
+        entr_cmd = "find . {} -type f {} -maxdepth {} -print |  entr -c -r sh -c '{}';"
+        
+       
+        pattern = ""
+        
+        for i, ext in enumerate(recipe["ext"]):
+            
+            if i > 0:
+                pattern += "-o "
+            
+            pattern += "-name '*{}' -print ".format(ext)
         
         escaped_cmd = cmd.replace("'", "'\\''")
-                
-        os.system(entr_cmd.format(args.maxdepth, extension, escaped_cmd))
+        
+        prune = ""
+        
+        if not args.no_prune:
+            for d in recipe["entr_prune"]:
+                prune += "-path ./node_modules -prune -o ".format(d)
+        
+        os.system(entr_cmd.format(prune, pattern, args.maxdepth, escaped_cmd))
     
     else:
         os.system(cmd)
-
-
+    
+# TODO: gerjo: this could be part of the recipe setup. Specify which 
+# files to sense for in order to deduce how to execute a path.  
+def deduce_recipes_from_path(path):
+    
+    # Node projects have a package file.
+    if os.path.isfile(os.path.join(path, "package.json")):
+        return [r for r in get_recipes() if r["recipe"] == "npm"]
+    
+    return []
+    
 def main(args):
 
     filename = args.filename
     pwd = os.getcwd()
-    
-    extension = os.path.splitext(filename)[1].lower();
-
-    if extension in recipes:
-        recipe = recipes[extension]
+   
+    extension = os.path.splitext(filename)[1].lower()
+   
+    # Use explicitly defined recipe when provided
+    if args.recipe:
+        recipes = [r for r in get_recipes() if r["recipe"] == args.recipe]
         
-        if type(recipe) == dict:
-            
-            if not args.recipe or args.recipe not in recipe:
-                errormessage = "Multiple recipes known for file extension '{}'. Try one of these:\n".format(extension)
-                
-                for key in recipe:
-                    errormessage += "  {} {} {}\n".format(os.path.basename(sys.argv[0]), key, filename)
-                    
-                error(3, errormessage)
-                
-            else:
-                recipe = recipe[args.recipe]
-            
-        if callable(recipes[extension]):
-            recipes[extension](filename, extension, args)
+        if len(recipes) > 0:
+            execute_recipe(recipes, filename, args)
         else:
-            run(recipe.format(filename, create_args_list(args.vars)), extension, args)
+            error(7, "Requested recipe '{}' does not exist.".format(args.recipe))
+        
+    # otherwise deduce it from file extension
+    elif extension != "":
+        recipes = [r for r in get_recipes() if extension in r["ext"]]
+    
+        if len(recipes) > 0:
+            execute_recipe(recipes, filename, args)
+        else:
+            error(8, "No recipe available for file extension '{0}'.".format(extension))
+       
+    # Deduce it from path    
+    elif os.path.isdir(filename):
+        recipes = deduce_recipes_from_path(filename)
+    
+        if len(recipes) > 0:
+            execute_recipe(recipes, filename, args)
+        else:
+            error(6, "Cannot determine recipe based on path '{}'.".format(filename))
+            
+    # This code shouldn't normally be reached
     else:
-        error(2, "Cannot execute '{}' files. No known recipe.".format(extension))
-
+        error(2, "Cannot execute '{}'. No known recipe could be deduced.".format(filename))   
+        
+        
 parser = argparse.ArgumentParser(description="Execute any sort of file.", epilog="This ought to make it easier to quickly test something, right?")
-parser.add_argument("--recipe", help="The recipe to use in case file extension is ambiguous", dest="recipe", nargs="?", default=None)
+parser.add_argument("recipe", help="The recipe to use in case file extension is ambiguous", nargs="?", default=None)
 parser.add_argument("filename", help="The to be executed file")
-parser.add_argument("--entr", help="Monitor for file changes (requires macOS or Linux)", dest="entr", action="store_const", default=False, const=True)
-parser.add_argument("--maxdepth", help="Recursion depth of find, in case entr is used", dest="maxdepth", action="store", default=2)
+parser.add_argument("--entr", help="Monitor for file changes", dest="entr", action="store_const", default=False, const=True)
+parser.add_argument("--entr-no-prune", help="Disable pruning entr folders.", dest="no_prune", action="store_const", default=False, const=True)
+parser.add_argument("--maxdepth", help="Recursion depth of find, in case entr is used", dest="maxdepth", action="store", default=4)
 parser.add_argument("--nobench", help="Remote benchmark and ruler", dest="bench", action="store_const", default=True, const=True)
-parser.add_argument("vars", nargs="*", help="optional arguments passed onto executed program")
+parser.add_argument('args', nargs='*', default=None, help="Arguments passed onto the executed file")
 
 args = parser.parse_args()
 
