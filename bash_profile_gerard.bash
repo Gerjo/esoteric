@@ -41,7 +41,7 @@ alias la='ls -lGa'
 # Extract a compressed tarball
 alias untar='tar -zxvf'
 
-if ! [ -x "$(command -v PICO)" ]; then
+if ! [ -x "$(command -v pico)" ]; then
     alias pico='nano'
 fi
 
@@ -78,10 +78,10 @@ qfind() {
 		return 1
 	fi
 	
-	RES=$(find . -iname "$1" -not -path '*/\.*' | HEAD -n 1)
+	RES=$(find . -iname "$1" -not -path '*/\.*' | head -n 1)
 
 	if [ -z "$RES" ]; then
-	    echo $(find . -iname "$1*" -not -path '*/\.*' | HEAD -n 1)
+	    echo $(find . -iname "$1*" -not -path '*/\.*' | head -n 1)
 	else
 		echo $RES
 	fi
