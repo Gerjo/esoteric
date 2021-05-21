@@ -1,3 +1,4 @@
+
 PATHS=(
 	/usr/local 
 	/usr/local/bin
@@ -32,6 +33,15 @@ else
 	ISZSH=false
 fi
 
+###
+# Detect windows subsystem for linux
+###
+if grep -q Microsoft /proc/version; then
+    ISWSL=true
+else
+    ISWSL=false
+fi
+
 export EDITOR=nano
 export VISUAL=nano
 
@@ -55,7 +65,7 @@ fi
 # Find out where gitx is installed on my system.
 gitx_path=$(find ~/Applications /Applications -iname "gitx.app" -type d -maxdepth 1 2>/dev/null)
 
-# 
+
 if ! [ -x "$(command -v mate)" ]; then
 	CODE_PATH=/mnt/c/Users/Gerard/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe
 
@@ -185,7 +195,7 @@ disk_write_speed() {
 }
 
 ###
-# Generate a random UTF-8 icon
+# Generate a random UTF-8 icon based on the current time of day.
 ###
 get_random_utf_icon() {
 	ICONS=("♤" "♙" "☚" "☋" "☍" "☧" "☏" "☇" "♇" "♫" "♆" "☈" "♅" 
@@ -194,6 +204,12 @@ get_random_utf_icon() {
            "☡" "☻" "♜" "☊" "★" "♢" "*" "♖" "♝" "♃" "✎" "☬" "♮" 
            "☫" "♡" "❥" "♪" "☤" "☾" "☥" "♄" "☞" )
 		
+	# WSL - right now - has a much smaller range of supported 
+	# UTF8 characters.
+	if [[ "$ISWSL" == true ]] ; then
+		ICONS=("■" "±" "║" "©" "£" "░" "¤" "≡")
+	fi
+
 	RANDOM=$$$(date +%s)
 	WINNER=${ICONS[$RANDOM % ${#ICONS[@]} ]}	
 		
