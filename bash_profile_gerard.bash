@@ -87,10 +87,23 @@ fi
 # Open the given, or current, directory in gitx.
 ###
 gitx() {
-	if [ "$#" -lt 1 ]; then
-		${gitx_path}/Contents/Resources/gitx
+
+	if [[ "$ISWSL" == true ]] ; then
+
+		# note - this opens in a new window each time.
+		APP="/mnt/c/Program Files (x86)/GitExtensions/GitExtensions.exe"
+
+		if [ "$#" -lt 1 ]; then
+			$(nohup "${APP}" browse </dev/null >/dev/null 2>&1 &)
+		else
+			$(cd $1; nohup "${APP}" browse </dev/null >/dev/null 2>&1 &)
+		fi
 	else
-		${gitx_path}/Contents/Resources/gitx --git-dir=$1
+		if [ "$#" -lt 1 ]; then
+			${gitx_path}/Contents/Resources/gitx
+		else
+			${gitx_path}/Contents/Resources/gitx --git-dir=$1
+		fi
 	fi
 }
 
