@@ -1,9 +1,6 @@
 PATHS=(
-	#/opt/local/bin 
 	/usr/local 
 	/usr/local/bin
-	
-	#/usr/local/mysql/bin
 	
 	~/bin
 	~/Library/Android/sdk/platform-tools
