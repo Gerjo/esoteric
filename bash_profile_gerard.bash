@@ -48,12 +48,27 @@ alias la='ls -lGa'
 # Extract a compressed tarball
 alias untar='tar -zxvf'
 
-if ! [ -x "$(command -v PICO)" ]; then
+if ! [ -x "$(command -v pico)" ]; then
     alias pico='nano'
 fi
 
 # Find out where gitx is installed on my system.
 gitx_path=$(find ~/Applications /Applications -iname "gitx.app" -type d -maxdepth 1 2>/dev/null)
+
+# 
+if ! [ -x "$(command -v mate)" ]; then
+	CODE_PATH=/mnt/c/Users/Gerard/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe
+
+	if [ -f "$CODE_PATH" ]; then
+		mate() {
+			if [ "$#" -lt 1 ]; then
+				"$CODE_PATH"
+			else
+				"$CODE_PATH" $1
+			fi
+		}
+	fi
+fi
 
 ### 
 # Open the given, or current, directory in gitx.
@@ -85,10 +100,10 @@ qfind() {
 		return 1
 	fi
 	
-	RES=$(find . -iname "$1" -not -path '*/\.*' | HEAD -n 1)
+	RES=$(find . -iname "$1" -not -path '*/\.*' | head -n 1)
 
 	if [ -z "$RES" ]; then
-	    echo $(find . -iname "$1*" -not -path '*/\.*' | HEAD -n 1)
+	    echo $(find . -iname "$1*" -not -path '*/\.*' | head -n 1)
 	else
 		echo $RES
 	fi
