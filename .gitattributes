@@ -1,0 +1,7 @@
+
+# Seemingly an issue with WSL - newlines are converted 
+# into \r\n which trips up bash. These directives should
+# avoid that.
+*.sh text eol=lf
+*.zsh text eol=lf
+*.bash text eol=lf
