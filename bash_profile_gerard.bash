@@ -22,6 +22,9 @@ export GEM_HOME=~/rubygems
 
 source ~/esoteric/git-prompt.sh
 
+###
+# Detect ZSH
+###
 if [[ "$SHELL" == "/bin/zsh" ]]; then
 	
 	ISZSH=true
