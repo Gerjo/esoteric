@@ -21,14 +21,15 @@ export GEM_HOME=~/rubygems
 
 source ~/esoteric/git-prompt.sh
 
-
 if [[ "$SHELL" == "/bin/zsh" ]]; then
+	
 	ISZSH=true
-	# git-completion needs a wrapper to load
-	fpath=(~/esoteric/git-completion.zsh $fpath)
+	
+	# git completion is build-in. Nice.
+	autoload -Uz compinit && compinit
+	
 else
 	ISZSH=false
-	source ~/esoteric/git-completion.bash
 fi
 
 export EDITOR=nano
@@ -208,7 +209,35 @@ show_dir() {
 	echo "\\W"
 }
 
+###
+# Rebase if possible; otherwise merge.
+###
+rebase() {
+	git stash -u && git fetch
+	git rebase
+	if ! [ $? -eq 0 ]; then
+		echo "Rebase failed, merging instead"
+		git rebase --abort
+		git merge
+		if ! [ $? -eq 0 ]; then
+			echo "Fatal: Merge failed, aborting"
+			git merge --abort
+			return -1
+		else
+			echo "Merge successful"
+		fi
+	else
+		echo "Rebase successful"
+	fi
+	git stash pop
+}
 
+###
+# git pull; also include submodules.
+###
+gpa() {
+    git pull --recurse-submodule
+}
 
 
 if [[ "$ISZSH" == true ]] ; then
