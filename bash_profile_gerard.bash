@@ -39,7 +39,7 @@ fi
 ###
 # Detect windows subsystem for linux
 ###
-if grep -q Microsoft /proc/version; then
+if grep -q Microsoft /proc/version 2>/dev/null; then
     ISWSL=true
 else
     ISWSL=false
