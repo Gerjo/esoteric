@@ -173,7 +173,7 @@ qmate() {
 # Search for a file, and blame it. Anything specified after the first argument 
 # is directly passed onto the git blame command.
 ###
-blame() {
+qblame() {
 	if [ "$#" -lt 1 ]; then
 	    echo "fatal: did not specify a file name or pattern"
 		return 1
