@@ -169,6 +169,22 @@ qmate() {
 	return $(mate $FILE) 
 }
 
+qcd() {
+	if [ "$#" -lt 1 ]; then
+	    echo "fatal: no folder to search and open specified"
+		return 1
+	fi
+	
+	FOLDER=$(find . -name "$1" -type d -print -quit)
+		
+	if [ -z "$FOLDER" ]; then
+		echo "error: folder not found"
+		return 1
+	fi
+	
+	cd "$FOLDER"
+}
+
 ### 
 # Search for a file, and blame it. Anything specified after the first argument 
 # is directly passed onto the git blame command.
