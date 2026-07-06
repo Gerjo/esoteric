@@ -125,11 +125,10 @@ qfind() {
 	    echo "fatal: no file to search for specified"
 		return 1
 	fi
-	
-	RES=$(find . -iname "$1" -not -path '*/\.*' | head -n 1)
-
+	# Among all matches, keep the shallowest path (fewest directory levels)
+	RES=$(find . -iname "$1" -not -path '*/\.*' | awk -F/ 'NR==1 || NF < min { min=NF; line=$0 } END { print line }')
 	if [ -z "$RES" ]; then
-	    echo $(find . -iname "$1*" -not -path '*/\.*' | head -n 1)
+	    echo $(find . -iname "$1*" -not -path '*/\.*' | awk -F/ 'NR==1 || NF < min { min=NF; line=$0 } END { print line }')
 	else
 		echo $RES
 	fi
